@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Hướng dẫn SQL từ A-Z</title>
+  <style>
+    :root{--indigo:#667eea;--purple:#764ba2;}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:"Segoe UI",Tahoma,sans-serif;background:linear-gradient(135deg,var(--indigo),var(--purple));min-height:100vh;color:#1f2937;line-height:1.6}
+    .container{max-width:1400px;margin:0 auto;padding:20px}
+    .header{background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:16px;padding:16px 24px;margin-bottom:24px;border:1px solid rgba(255,255,255,.25);color:#fff}
+    .course-line{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+    .course-code{color:#ffd700;font-weight:800;font-size:22px}
+    .author{opacity:.9;font-size:14px}
+    .fb-link a{color:#ffd700;font-weight:700;text-decoration:none}
+    .fb-link a:hover{text-decoration:underline}
+    .main-container{display:flex;gap:20px;align-items:flex-start}
+    .sidebar{width:320px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);max-height:80vh;overflow-y:auto;position:sticky;top:20px}
+    .sidebar h3{color:var(--indigo);font-size:18px;margin-bottom:10px;text-align:center}
+    .tabs{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+    .tab-btn{background:linear-gradient(135deg,#f8f9ff,#e8f2ff);border:1px solid #e6e9ff;color:var(--purple);font-size:14px;padding:10px;border-radius:8px;cursor:pointer;transition:.2s;font-weight:700}
+    .tab-btn.active,.tab-btn:hover{background:linear-gradient(135deg,var(--indigo),var(--purple));color:#fff}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .toc-item{padding:8px 10px;cursor:pointer;color:#374151;border-radius:8px;transition:.15s;font-size:14px;margin:2px 0}
+    .toc-item:hover,.toc-item.active{background:rgba(102,126,234,.15);color:var(--indigo);padding-left:14px;font-weight:700}
+    .content-area{flex:1;background:#fff;border-radius:16px;padding:28px;box-shadow:0 20px 40px rgba(0,0,0,.08);max-height:80vh;overflow-y:auto}
+    .search-box{width:100%;padding:12px 14px;margin-bottom:16px;border:2px solid var(--indigo);border-radius:10px;font-size:16px}
+    .section{display:none;animation:fadeIn .35s ease-in}
+    .section.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .section h2{color:var(--indigo);font-size:26px;margin:0 0 16px 0;padding-bottom:10px;border-bottom:3px solid var(--indigo)}
+    .section h3{color:var(--purple);font-size:18px;margin:20px 0 10px;padding:10px;background:linear-gradient(135deg,#f8f9ff,#e8f2ff);border-left:5px solid var(--indigo);border-radius:8px}
+    .code-block{background:#111827;color:#e5e7eb;padding:14px;border-radius:10px;font-family:"Courier New",monospace;font-size:13px;overflow-x:auto;position:relative;margin:10px 0}
+    .code-block::before{content:"SQL";position:absolute;top:6px;right:10px;background:var(--indigo);color:#fff;border-radius:4px;font-size:11px;padding:2px 6px}
+    .example,.info-box,.success-box,.highlight-box,.note{border-radius:10px;padding:14px;margin:12px 0}
+    .example{background:#f7fafc;border-left:4px solid #4299e1}
+    .info-box{background:linear-gradient(135deg,#ebf8ff,#bee3f8);border-left:4px solid #3182ce}
+    .success-box{background:linear-gradient(135deg,#f0fff4,#c6f6d5);border-left:4px solid #38a169}
+    .highlight-box{background:linear-gradient(135deg,#fff5f5,#fed7d7);border-left:4px solid #e53e3e}
+    .note{background:#fffbeb;border-left:4px solid #f6ad55}
+    table{width:100%;border-collapse:collapse;margin:12px 0;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.06)}
+    th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e5e7eb}
+    th{background:linear-gradient(135deg,var(--indigo),var(--purple));color:#fff}
+    tr:hover{background:#f9fafb}
+    .back-to-top{position:fixed;bottom:24px;right:24px;background:var(--indigo);color:#fff;border:none;border-radius:50%;width:48px;height:48px;cursor:pointer;font-size:18px;display:none}
+    .back-to-top:hover{background:var(--purple)}
+    @media (max-width:1024px){.main-container{flex-direction:column}.sidebar{width:100%;position:relative;max-height:none}.content-area{max-height:none}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="fb-link">📘 Facebook:
+        <a href="https://www.facebook.com/vu.hoang.79219" target="_blank" rel="noopener">Hoàng Hoàng</a>
+      </div>
+      <div class="course-line">
+        <div class="course-code">DBI202</div>
+        <div class="author">Tác giả: HOÀNG HOÀNG</div>
+      </div>
+    </div>
+
+    <div class="main-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h3>🔍 Mục Lục</h3>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="basic">PHẦN I: CƠ BẢN</button>
+          <button class="tab-btn" data-tab="constraints">PHẦN II: CONSTRAINTS & INDEX</button>
+          <button class="tab-btn" data-tab="basic-sql">PHẦN III: SQL CƠ BẢN</button>
+          <button class="tab-btn" data-tab="advanced">PHẦN IV: NÂNG CAO</button>
+          <button class="tab-btn" data-tab="expert">PHẦN V: CẤU TRÚC NÂNG CAO</button>
+          <button class="tab-btn" data-tab="videos">🎬 VIDEO TRICKS</button>
+        </div>
+
+        <div class="tab-content active" id="basic">
+          <div class="toc-item" data-target="datatype">1. Datatype</div>
+          <div class="toc-item" data-target="char-varchar">2. CHAR vs VARCHAR</div>
+          <div class="toc-item" data-target="conversion">3. Chuyển đổi kiểu</div>
+          <div class="toc-item" data-target="truncate-drop-delete">4. TRUNCATE vs DROP vs DELETE</div>
+          <div class="toc-item" data-target="identity-sequence">5. Identity vs Sequence</div>
+        </div>
+
+        <div class="tab-content" id="constraints">
+          <div class="toc-item" data-target="constraint">6. Constraint</div>
+          <div class="toc-item" data-target="constraint-ways">7. Cách tạo constraint</div>
+          <div class="toc-item" data-target="unique-pk">8. Unique vs PK</div>
+          <div class="toc-item" data-target="index">9. Index</div>
+        </div>
+
+        <div class="tab-content" id="basic-sql">
+          <div class="toc-item" data-target="sql-order">10. Thứ tự thực thi SQL</div>
+          <div class="toc-item" data-target="where-having">11. WHERE vs HAVING</div>
+          <div class="toc-item" data-target="union-merge">12. UNION, MERGE, PIVOT, INTERSECT</div>
+          <div class="toc-item" data-target="relationship">13. Relationship & Chuẩn hóa</div>
+          <div class="toc-item" data-target="group-by">14. GROUP BY</div>
+          <div class="toc-item" data-target="functions">15. Các function</div>
+        </div>
+
+        <div class="tab-content" id="advanced">
+          <div class="toc-item" data-target="join">16. JOIN</div>
+          <div class="toc-item" data-target="view">17. VIEW</div>
+          <div class="toc-item" data-target="subquery">18. SUBQUERY</div>
+          <div class="toc-item" data-target="ranking">19. Ranking / Window</div>
+          <div class="toc-item" data-target="cte">20. CTE</div>
+        </div>
+
+        <div class="tab-content" id="expert">
+          <div class="toc-item" data-target="conditions">21. Lệnh điều khiển</div>
+          <div class="toc-item" data-target="udf">22. UDF</div>
+          <div class="toc-item" data-target="sp">23. Stored Procedure</div>
+          <div class="toc-item" data-target="exception">24. Exception</div>
+          <div class="toc-item" data-target="transaction">25. Transaction</div>
+          <div class="toc-item" data-target="trigger">26. Trigger</div>
+          <div class="toc-item" data-target="acid">27. ACID</div>
+        </div>
+
+        <div class="tab-content" id="videos">
+          <div class="toc-item" data-target="video-tricks">🎬 Mẹo & Video</div>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <main class="content-area">
+        <input type="text" class="search-box" placeholder="🔍 Tìm kiếm..." id="searchBox"/>
+
+        <!-- 1 -->
+        <section class="section active" id="datatype">
+          <h2>1. Datatype của SQL</h2>
+          <h3>📊 Numeric</h3>
+          <ul>
+            <li><b>TINYINT</b> (0–255), <b>SMALLINT</b> (-32,768..32,767), <b>INT/INTEGER</b>, <b>BIGINT</b>.</li>
+            <li><b>DECIMAL(p,s)/NUMERIC(p,s)</b> – số thập phân chính xác (dùng cho tiền).</li>
+            <li><b>FLOAT/DOUBLE/REAL</b> – số thực xấp xỉ.</li>
+          </ul>
+          <h3>📝 Character & JSON/Binary</h3>
+          <ul>
+            <li><b>CHAR(n)</b> (cố định), <b>VARCHAR(n)</b> (thay đổi), <b>TEXT</b>.</li>
+            <li><b>JSON</b> (MySQL/PostgreSQL), <b>BINARY/VARBINARY/BLOB</b>.</li>
+          </ul>
+          <h3>📅 Date/Time</h3>
+          <ul><li><b>DATE</b>, <b>TIME</b>, <b>DATETIME/TIMESTAMP</b>, (PostgreSQL có <b>INTERVAL</b>).</li></ul>
+          <div class="example">
+            <h4>Ví dụ</h4>
+            <div class="code-block">CREATE TABLE products (
+  product_id INT PRIMARY KEY,
+  product_name VARCHAR(100),
+  brand_id INT,
+  category_id INT,
+  model_year INT,
+  list_price DECIMAL(10,2)
+);</div>
+          </div>
+        </section>
+
+        <!-- 2 -->
+        <section class="section" id="char-varchar">
+          <h2>2. Phân biệt CHAR vs VARCHAR</h2>
+          <ul>
+            <li><b>CHAR</b>: độ dài cố định, nếu ngắn hơn sẽ đệm khoảng trắng.</li>
+            <li><b>VARCHAR</b>: độ dài thay đổi, dùng đúng dung lượng cần thiết.</li>
+          </ul>
+          <div class="code-block">-- Ví dụ dùng
+-- CHAR cho tên cửa hàng cố định độ dài
+INSERT INTO stores (store_name) VALUES ('BikeStore');
+
+-- VARCHAR cho email linh hoạt
+INSERT INTO customers (email) VALUES ('abcdefg2342343@gmail.com');</div>
+        </section>
+
+        <!-- 3 -->
+        <section class="section" id="conversion">
+          <h2>3. Chuyển đổi giữa các kiểu dữ liệu</h2>
+          <ul>
+            <li><b>CAST</b>: chuyển kiểu chung.</li>
+            <li><b>CONVERT</b>: giống CAST nhưng có định dạng – chủ yếu SQL Server.</li>
+          </ul>
+          <div class="code-block">SELECT CAST(123 AS VARCHAR);      -- "123"
+SELECT CONVERT(VARCHAR, GETDATE(), 103); -- dd/MM/yyyy</div>
+        </section>
+
+        <!-- 4 -->
+        <section class="section" id="truncate-drop-delete">
+          <h2>4. TRUNCATE vs DROP vs DELETE</h2>
+          <ul>
+            <li><b>TRUNCATE</b>: xóa toàn bộ dữ liệu, giữ cấu trúc.</li>
+            <li><b>DROP</b>: xóa cả bảng lẫn dữ liệu.</li>
+            <li><b>DELETE</b>: xóa theo điều kiện, giữ cấu trúc.</li>
+          </ul>
+          <div class="code-block">TRUNCATE TABLE orders;
+DROP TABLE stocks;
+DELETE FROM customers WHERE city = 'Tokyo';</div>
+        </section>
+
+        <!-- 5 -->
+        <section class="section" id="identity-sequence">
+          <h2>5. Identity vs Sequence</h2>
+          <ul>
+            <li><b>IDENTITY</b>: cột tự tăng cục bộ từng bảng.</li>
+            <li><b>SEQUENCE</b>: đối tượng phát số dùng chung cho nhiều bảng.</li>
+          </ul>
+          <div class="code-block">CREATE TABLE orders (
+  order_id INT IDENTITY(1,1) PRIMARY KEY,
+  customer_id INT,
+  order_date DATE
+);
+CREATE SEQUENCE seq_transaction_id START WITH 1 INCREMENT BY 1;</div>
+        </section>
+
+        <!-- 6 -->
+        <section class="section" id="constraint">
+          <h2>6. Constraint trong SQL</h2>
+          <ul>
+            <li><b>NOT NULL</b>, <b>UNIQUE</b>, <b>PRIMARY KEY</b>, <b>FOREIGN KEY</b>, <b>CHECK</b>, <b>DEFAULT</b>.</li>
+          </ul>
+          <div class="code-block">ALTER TABLE orders
+ADD CONSTRAINT fk_customer
+FOREIGN KEY (customer_id)
+REFERENCES customers(customer_id);</div>
+        </section>
+
+        <!-- 7 -->
+        <section class="section" id="constraint-ways">
+          <h2>7. Có mấy cách tạo constraint?</h2>
+          <ul>
+            <li><b>Khi tạo bảng</b> (CREATE TABLE ...).</li>
+            <li><b>Sau khi tạo bảng</b> (ALTER TABLE ... ADD CONSTRAINT ...).</li>
+          </ul>
+          <div class="code-block">CREATE TABLE products (
+  product_id INT PRIMARY KEY,
+  product_name VARCHAR(50) NOT NULL
+);
+
+ALTER TABLE products
+ADD CONSTRAINT unique_product_name UNIQUE(product_name);</div>
+        </section>
+
+        <!-- 8 -->
+        <section class="section" id="unique-pk">
+          <h2>8. Unique vs Primary Key</h2>
+          <ul>
+            <li><b>UNIQUE</b>: đảm bảo duy nhất; có thể nhiều UNIQUE; thường cho phép NULL.</li>
+            <li><b>PRIMARY KEY</b>: duy nhất + NOT NULL; 1 PK mỗi bảng.</li>
+          </ul>
+          <div class="code-block">ALTER TABLE stores
+  ADD CONSTRAINT pk_store_id PRIMARY KEY (store_id);
+ALTER TABLE customers
+  ADD CONSTRAINT unique_email UNIQUE (email);</div>
+        </section>
+
+        <!-- 9 -->
+        <section class="section" id="index">
+          <h2>9. Index</h2>
+          <p>Giúp tìm nhanh thay vì quét cả bảng. Các loại: Clustered, Non-clustered, Single-column, Composite, Unique.</p>
+          <div class="code-block">CREATE INDEX idx_customer_name ON customers(last_name);
+CREATE INDEX idx_name_department ON employees(first_name, department_id);</div>
+        </section>
+
+        <!-- 10 -->
+        <section class="section" id="sql-order">
+          <h2>10. Thứ tự thực thi SQL</h2>
+          <ol>
+            <li>FROM (JOIN)</li><li>WHERE</li><li>GROUP BY</li><li>HAVING</li><li>SELECT</li><li>ORDER BY</li>
+          </ol>
+          <div class="code-block">SELECT
+  c.customer_id, c.first_name, c.last_name,
+  COUNT(o.order_id) AS total_orders
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_date >= '2024-01-01'
+GROUP BY c.customer_id, c.first_name, c.last_name
+HAVING COUNT(o.order_id) > 2
+ORDER BY total_orders DESC;</div>
+        </section>
+
+        <!-- 11 -->
+        <section class="section" id="where-having">
+          <h2>11. WHERE vs HAVING</h2>
+          <ul>
+            <li><b>WHERE</b> lọc trước khi nhóm.</li>
+            <li><b>HAVING</b> lọc sau khi nhóm (dùng với aggregate).</li>
+          </ul>
+          <div class="code-block">SELECT store_id, COUNT(product_id)
+FROM stocks
+GROUP BY store_id
+HAVING COUNT(product_id) > 10;</div>
+        </section>
+
+        <!-- 12 -->
+        <section class="section" id="union-merge">
+          <h2>12. UNION, MERGE, PIVOT, INTERSECT</h2>
+          <h3>UNION</h3>
+          <div class="code-block">SELECT product_name FROM products WHERE category_id=1
+UNION
+SELECT product_name FROM products WHERE category_id=2;</div>
+          <h3>MERGE</h3>
+          <div class="code-block">MERGE INTO stocks AS target
+USING new_stocks AS source
+ON target.product_id = source.product_id
+WHEN MATCHED THEN
+  UPDATE SET target.quantity = source.quantity;</div>
+          <h3>PIVOT</h3>
+          <div class="code-block">SELECT *
+FROM (
+  SELECT store_id, model_year, list_price FROM products
+) AS src
+PIVOT ( SUM(list_price) FOR model_year IN ([2022],[2023]) ) AS pvt;</div>
+          <h3>INTERSECT</h3>
+          <div class="code-block">SELECT product_name FROM products WHERE brand_id=1
+INTERSECT
+SELECT product_name FROM products WHERE category_id=3;</div>
+        </section>
+
+        <!-- 13 -->
+        <section class="section" id="relationship">
+          <h2>13. Relationship & Chuẩn hóa (1NF, 2NF, 3NF)</h2>
+          <ul>
+            <li><b>Quan hệ</b>: 1-1, 1-n, n-n.</li>
+            <li><b>1NF</b>: mỗi ô 1 giá trị, hàng duy nhất.</li>
+            <li><b>2NF</b>: thỏa 1NF + không phụ thuộc bộ phận với composite key.</li>
+            <li><b>3NF</b>: thỏa 2NF + không phụ thuộc bắc cầu giữa các thuộc tính không khóa.</li>
+          </ul>
+        </section>
+
+        <!-- 14 -->
+        <section class="section" id="group-by">
+          <h2>14. GROUP BY</h2>
+          <div class="code-block">SELECT store_id, COUNT(product_id) AS total_products
+FROM stocks
+GROUP BY store_id;</div>
+        </section>
+
+        <!-- 15 -->
+        <section class="section" id="functions">
+          <h2>15. Function thường dùng</h2>
+          <h3>Tổng hợp</h3>
+          <p>COUNT, SUM, AVG, MIN, MAX</p>
+          <h3>Chuỗi</h3>
+          <p>CONCAT, LENGTH, SUBSTRING</p>
+          <h3>Ngày giờ (tùy hệ)</h3>
+          <p>CURRENT_DATE, NOW, DATEADD, DATEPART, DATEDIFF, FORMAT</p>
+          <div class="code-block">SELECT AVG(list_price) AS avg_price FROM products;</div>
+        </section>
+
+        <!-- 16 -->
+        <section class="section" id="join">
+          <h2>16. JOIN</h2>
+          <p>INNER, LEFT, RIGHT, FULL, CROSS (khi hai bảng không có quan hệ vẫn JOIN được bằng CROSS).</p>
+          <div class="code-block">SELECT o.order_id, c.first_name, c.last_name
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.customer_id;</div>
+          <div class="code-block">SELECT * FROM products p CROSS JOIN brands b;</div>
+        </section>
+
+        <!-- 17 -->
+        <section class="section" id="view">
+          <h2>17. VIEW</h2>
+          <p>Bảng ảo từ một truy vấn; đơn giản hóa truy vấn & tăng bảo mật.</p>
+          <div class="code-block">CREATE VIEW customer_orders AS
+SELECT c.customer_id, c.first_name, o.order_id, o.order_date
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;</div>
+        </section>
+
+        <!-- 18 -->
+        <section class="section" id="subquery">
+          <h2>18. SUBQUERY</h2>
+          <div class="code-block">SELECT first_name, last_name
+FROM customers
+WHERE customer_id IN (
+  SELECT customer_id FROM orders
+  WHERE order_date > '2025-01-01'
+);</div>
+        </section>
+
+        <!-- 19 -->
+        <section class="section" id="ranking">
+          <h2>19. Ranking & Window</h2>
+          <p>ROW_NUMBER, RANK, DENSE_RANK … dùng với OVER(ORDER BY ...), có thể PARTITION BY.</p>
+          <div class="code-block">SELECT *, ROW_NUMBER() OVER(ORDER BY list_price DESC) AS rn
+FROM production.products;</div>
+        </section>
+
+        <!-- 20 -->
+        <section class="section" id="cte">
+          <h2>20. CTE</h2>
+          <div class="code-block">WITH ProductSales AS (
+  SELECT product_id, SUM(quantity) AS total_quantity
+  FROM order_items
+  GROUP BY product_id
+)
+SELECT * FROM ProductSales WHERE total_quantity > 10;</div>
+        </section>
+
+        <!-- 21 -->
+        <section class="section" id="conditions">
+          <h2>21. Câu lệnh điều khiển</h2>
+          <ul>
+            <li>IF…ELSE, CASE</li>
+            <li>LOOP/WHILE/REPEAT</li>
+            <li>TRY…CATCH (hoặc DECLARE HANDLER)</li>
+            <li>GOTO, RETURN, LEAVE, ITERATE</li>
+          </ul>
+          <div class="code-block">BEGIN TRY
+  SELECT 1/0;
+END TRY
+BEGIN CATCH
+  PRINT 'Có lỗi xảy ra: ' + ERROR_MESSAGE();
+END CATCH;</div>
+        </section>
+
+        <!-- 22 -->
+        <section class="section" id="udf">
+          <h2>22. UDF (User-Defined Function)</h2>
+          <p>Scalar function (trả 1 giá trị) & Table-valued function (trả bảng).</p>
+          <div class="code-block">CREATE FUNCTION calculate_tax(@price DECIMAL(10,2))
+RETURNS DECIMAL(10,2)
+AS
+BEGIN
+  RETURN @price*0.1;
+END;</div>
+        </section>
+
+        <!-- 23 -->
+        <section class="section" id="sp">
+          <h2>23. Stored Procedure</h2>
+          <div class="code-block">CREATE PROCEDURE get_products
+AS
+BEGIN
+  SELECT * FROM products;
+END;</div>
+        </section>
+
+        <!-- 24 -->
+        <section class="section" id="exception">
+          <h2>24. Exception</h2>
+          <p>Xử lý ngoại lệ bằng TRY…CATCH (SQL Server) hoặc cơ chế tương đương.</p>
+        </section>
+
+        <!-- 25 -->
+        <section class="section" id="transaction">
+          <h2>25. Transaction</h2>
+          <p>BEGIN TRAN → COMMIT/ROLLBACK; đảm bảo tính toàn vẹn thao tác.</p>
+          <div class="code-block">BEGIN TRANSACTION;
+UPDATE products SET stock = stock - 1 WHERE product_id = 1;
+IF @@ERROR <> 0 ROLLBACK;
+ELSE COMMIT;</div>
+        </section>
+
+        <!-- 26 -->
+        <section class="section" id="trigger">
+          <h2>26. Trigger</h2>
+          <p>Tự động chạy khi INSERT/UPDATE/DELETE; có DML & DDL trigger; có thể hủy thao tác qua ROLLBACK.</p>
+          <div class="code-block">CREATE TRIGGER trg_update_stock
+ON orders
+AFTER INSERT
+AS
+BEGIN
+  UPDATE products
+  SET stock = stock - 1
+  WHERE product_id = (SELECT TOP 1 product_id FROM inserted);
+END;</div>
+        </section>
+
+        <!-- 27 -->
+        <section class="section" id="acid">
+          <h2>27. ACID</h2>
+          <ul>
+            <li><b>Atomicity</b>: toàn bộ hoặc không gì cả.</li>
+            <li><b>Consistency</b>: dữ liệu hợp lệ trước/sau giao dịch.</li>
+            <li><b>Isolation</b>: giao dịch không ảnh hưởng lẫn nhau.</li>
+            <li><b>Durability</b>: bền vững sau khi commit.</li>
+          </ul>
+        </section>
+
+        <!-- VIDEO -->
+        <section class="section" id="video-tricks">
+          <h2>🎬 Mẹo & Video</h2>
+          <p><em>Đang cập nhật…</em></p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <button class="back-to-top" id="backTop" aria-label="Lên đầu trang">↑</button>
+
+  <script>
+    // Tabs
+    const tabButtons=document.querySelectorAll('.tab-btn');
+    const tabContents=document.querySelectorAll('.tab-content');
+    tabButtons.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        tabButtons.forEach(b=>b.classList.remove('active'));
+        tabContents.forEach(c=>c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // TOC click -> show section
+    const sections=document.querySelectorAll('.section');
+    function showSection(id){
+      sections.forEach(s=>s.classList.remove('active'));
+      const el=document.getElementById(id);
+      if(el){el.classList.add('active'); document.querySelector('.content-area').scrollTo({top:0,behavior:'smooth'});}
+      document.querySelectorAll('.toc-item').forEach(i=>i.classList.remove('active'));
+      const item=document.querySelector(`.toc-item[data-target="${id}"]`);
+      if(item) item.classList.add('active');
+    }
+    document.querySelectorAll('.toc-item').forEach(item=>{
+      item.addEventListener('click',()=>showSection(item.dataset.target));
+    });
+
+    // Search filter for TOC
+    const searchBox=document.getElementById('searchBox');
+    searchBox.addEventListener('input',e=>{
+      const q=e.target.value.toLowerCase();
+      document.querySelectorAll('.toc-item').forEach(item=>{
+        item.style.display=item.textContent.toLowerCase().includes(q)?'':'none';
+      });
+    });
+
+    // Back to top
+    const backBtn=document.getElementById('backTop');
+    window.addEventListener('scroll',()=>{backBtn.style.display=window.scrollY>200?'block':'none';});
+    backBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+  </script>
+</body>
+</html>
